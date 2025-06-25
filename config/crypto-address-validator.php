@@ -36,33 +36,4 @@ return [
     |
     */
     'strict_mode' => false,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cache Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configuration for caching validation results to improve performance.
-    | Set 'enabled' to false to disable caching entirely.
-    |
-    */
-    'cache' => [
-        'enabled' => true,
-        'ttl' => 3600, // Time to live in seconds (1 hour)
-        'prefix' => 'crypto_validator',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Logging
-    |--------------------------------------------------------------------------
-    |
-    | Enable logging of validation attempts for debugging and monitoring.
-    |
-    */
-    'logging' => [
-        'enabled' => false,
-        'channel' => 'default',
-        'level' => 'info',
-    ],
 ];

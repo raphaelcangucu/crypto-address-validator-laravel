@@ -76,35 +76,6 @@ return [
     |
     */
     'strict_mode' => false,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cache Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configuration for caching validation results to improve performance.
-    | Set 'enabled' to false to disable caching entirely.
-    |
-    */
-    'cache' => [
-        'enabled' => true,
-        'ttl' => 3600, // Time to live in seconds (1 hour)
-        'prefix' => 'crypto_validator',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Logging
-    |--------------------------------------------------------------------------
-    |
-    | Enable logging of validation attempts for debugging and monitoring.
-    |
-    */
-    'logging' => [
-        'enabled' => false,
-        'channel' => 'default',
-        'level' => 'info',
-    ],
 ];
 ```
 
@@ -299,7 +270,7 @@ composer test
 The package is optimized for high performance:
 
 - **Fast validation**: Uses native cryptocurrency validation algorithms
-- **Caching support**: Optional result caching to improve repeated validations
+- **No external dependencies**: All validation is done locally
 - **Minimal dependencies**: Built on a lightweight foundation
 - **Memory efficient**: Low memory footprint even with large validation sets
 
