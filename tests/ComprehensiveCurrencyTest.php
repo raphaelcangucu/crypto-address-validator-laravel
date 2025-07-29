@@ -100,6 +100,47 @@ describe('Comprehensive Currency Validation', function () {
         expect(CryptoAddressValidator::validate('0x742d35Cc6339C4532CE58b5D3Ea8d5A8d6F6395C', 'matic'))->toBeTrue();
     });
 
+    it('validates TON addresses', function () {
+        // Standard TON mainnet addresses (EQ prefix)
+        expect(CryptoAddressValidator::validate('EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', 'ton'))->toBeTrue();
+        
+        // Raw format addresses
+        expect(CryptoAddressValidator::validate('0:3333333333333333333333333333333333333333333333333333333333333333', 'ton'))->toBeTrue();
+        expect(CryptoAddressValidator::validate('-1:3333333333333333333333333333333333333333333333333333333333333333', 'ton'))->toBeTrue();
+        
+        // Base64url encoded format
+        expect(CryptoAddressValidator::validate('Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF', 'ton'))->toBeTrue();
+    });
+
+    it('validates TON addresses with memo/tag options', function () {
+        // Test TON addresses with memo parameter
+        expect(CryptoAddressValidator::validate(
+            'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', 
+            'ton', 
+            ['memo' => '123456789']
+        ))->toBeTrue();
+        
+        // Test TON addresses with tag parameter
+        expect(CryptoAddressValidator::validate(
+            '0:3333333333333333333333333333333333333333333333333333333333333333', 
+            'ton', 
+            ['tag' => 'test-tag']
+        ))->toBeTrue();
+        
+        // Test with both memo and tag
+        expect(CryptoAddressValidator::validate(
+            'Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF', 
+            'ton', 
+            ['memo' => '987654321', 'tag' => 'payment-id']
+        ))->toBeTrue();
+        
+        // Test without memo/tag (should still work)
+        expect(CryptoAddressValidator::validate(
+            'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', 
+            'ton'
+        ))->toBeTrue();
+    });
+
     it('validates additional supported currencies', function () {
         // Skip unsupported currencies to avoid failures
         // Focus on testing the optional parameters functionality
@@ -121,12 +162,28 @@ describe('Comprehensive Currency Validation', function () {
     });
 
     it('rejects invalid addresses for all currencies', function () {
-        $currencies = ['btc', 'eth', 'ada', 'sol', 'xrp', 'ltc', 'bch', 'trx', 'dot', 'doge'];
+        $currencies = ['btc', 'eth', 'ada', 'sol', 'xrp', 'ltc', 'bch', 'trx', 'dot', 'doge', 'ton'];
         $invalidAddress = 'invalid-address-format';
         
         foreach ($currencies as $currency) {
             expect(CryptoAddressValidator::validate($invalidAddress, $currency))->toBeFalse();
         }
+    });
+
+    it('rejects invalid TON addresses specifically', function () {
+        // Invalid formats
+        expect(CryptoAddressValidator::validate('invalid-ton-address', 'ton'))->toBeFalse();
+        expect(CryptoAddressValidator::validate('1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2', 'ton'))->toBeFalse(); // Bitcoin address
+        expect(CryptoAddressValidator::validate('0x742d35Cc6339C4532CE58b5D3Ea8d5A8d6F6395C', 'ton'))->toBeFalse(); // Ethereum address
+        
+        // Malformed TON addresses (invalid base64 characters)
+        expect(CryptoAddressValidator::validate('EQ_invalid_checksum!@#$', 'ton'))->toBeFalse();
+        expect(CryptoAddressValidator::validate('EQ', 'ton'))->toBeFalse(); // Too short
+        expect(CryptoAddressValidator::validate('', 'ton'))->toBeFalse(); // Empty
+        
+        // Invalid raw format 
+        expect(CryptoAddressValidator::validate('0:invalid', 'ton'))->toBeFalse();
+        expect(CryptoAddressValidator::validate('2:3333333333333333333333333333333333333333333333333333333333333333', 'ton'))->toBeFalse(); // Invalid workchain
     });
 
     it('rejects addresses with wrong network when network options are specified', function () {

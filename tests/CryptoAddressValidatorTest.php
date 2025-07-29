@@ -17,6 +17,20 @@ it('can validate solana addresses', function () {
     expect($valid)->toBeTrue();
 });
 
+it('can validate TON addresses', function () {
+    $valid = CryptoAddressValidator::validate('EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c', 'ton');
+    expect($valid)->toBeTrue();
+});
+
+it('can validate TON addresses with memo', function () {
+    $valid = CryptoAddressValidator::validate(
+        'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
+        'ton',
+        ['memo' => '123456789']
+    );
+    expect($valid)->toBeTrue();
+});
+
 it('rejects invalid addresses', function () {
     $valid = CryptoAddressValidator::validate('invalid-address', 'btc');
     expect($valid)->toBeFalse();
