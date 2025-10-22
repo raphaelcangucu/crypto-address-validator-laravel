@@ -259,6 +259,144 @@ $validator = CryptoAddressValidator::getValidator();
 $result = $validator->validateWithDetails($address, $currency);
 ```
 
+## Extending with Custom Currencies
+
+You can extend the package to support additional cryptocurrencies not included in the base library by registering custom validators in the configuration file.
+
+### Creating a Custom Validator
+
+First, create a validator class that implements `Multicoin\AddressValidator\Contracts\ValidatorInterface`:
+
+```php
+<?php
+
+namespace App\CryptoValidators;
+
+use Multicoin\AddressValidator\Contracts\ValidatorInterface;
+
+class MyCoinValidator implements ValidatorInterface
+{
+    protected array $config;
+
+    public function __construct(array $config = [])
+    {
+        $this->config = $config;
+    }
+
+    public function isValidAddress(string $address, array $options = []): bool
+    {
+        // Implement your validation logic here
+        // Example: Check address format, length, checksum, etc.
+
+        $networkType = $options['networkType'] ?? 'prod';
+
+        // Basic validation example
+        if (strlen($address) < 26 || strlen($address) > 35) {
+            return false;
+        }
+
+        // Add your specific validation logic
+        return preg_match('/^[MY][a-zA-Z0-9]+$/', $address) === 1;
+    }
+
+    public function getSupportedNetworks(): array
+    {
+        return ['prod', 'testnet'];
+    }
+}
+```
+
+**Tip**: You can extend existing validators to reuse validation logic:
+
+```php
+<?php
+
+namespace App\CryptoValidators;
+
+use Multicoin\AddressValidator\Validators\BitcoinValidator;
+
+class MyBitcoinForkValidator extends BitcoinValidator
+{
+    // Inherits all Bitcoin validation logic
+    // Override only what's different for your fork
+}
+```
+
+### Registering Custom Currencies
+
+Publish the config file if you haven't already:
+
+```bash
+php artisan vendor:publish --tag="crypto-address-validator-config"
+```
+
+Then add your custom currency to `config/crypto-address-validator.php`:
+
+```php
+'custom_currencies' => [
+    [
+        'name' => 'MyCoin',
+        'symbol' => 'myc',
+        'validator' => \App\CryptoValidators\MyCoinValidator::class,
+        'config' => [
+            'addressTypes' => ['prod' => ['1a'], 'testnet' => ['2b']],
+            // Add any configuration your validator needs
+        ]
+    ],
+    [
+        'name' => 'AnotherCoin',
+        'symbol' => 'anc',
+        'validator' => \App\CryptoValidators\AnotherCoinValidator::class,
+        'config' => [
+            'bech32Hrp' => ['prod' => ['ac'], 'testnet' => ['tac']],
+        ]
+    ],
+],
+```
+
+### Using Custom Currencies
+
+Once registered, your custom currencies work exactly like the built-in ones:
+
+```php
+use CryptoAddressValidator\Facades\CryptoAddressValidator;
+
+// Validate your custom currency
+$isValid = CryptoAddressValidator::validate('MY1abc...', 'myc');
+
+// Check if custom currency is supported
+$isSupported = CryptoAddressValidator::isSupported('myc'); // true
+
+// Get custom currency info
+$currency = CryptoAddressValidator::findCurrency('myc');
+```
+
+### Custom Validator Interface
+
+Your validator must implement the following interface:
+
+```php
+interface ValidatorInterface
+{
+    /**
+     * @param string $address The address to validate
+     * @param array $options Validation options (networkType, etc.)
+     * @return bool True if valid, false otherwise
+     */
+    public function isValidAddress(string $address, array $options = []): bool;
+
+    /**
+     * @return array Array of supported network types (e.g., ['prod', 'testnet'])
+     */
+    public function getSupportedNetworks(): array;
+}
+```
+
+**Available Options**:
+- `networkType`: 'prod', 'testnet', or 'stagenet'
+- `validateChecksum`: For checksum validation (Ethereum-style)
+- Custom options specific to your validator
+
 ## Testing
 
 ```bash

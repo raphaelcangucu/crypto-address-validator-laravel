@@ -36,4 +36,43 @@ return [
     |
     */
     'strict_mode' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Currencies
+    |--------------------------------------------------------------------------
+    |
+    | Register custom currency validators here. This allows you to extend
+    | the package with support for additional cryptocurrencies not included
+    | in the base library.
+    |
+    | Each currency definition should include:
+    | - name: The full name of the cryptocurrency
+    | - symbol: The currency symbol (e.g., 'btc', 'eth')
+    | - validator: The validator class (must implement ValidatorInterface)
+    | - config: Additional configuration options for the validator
+    |
+    | Example:
+    |
+    | 'custom_currencies' => [
+    |     [
+    |         'name' => 'MyCoin',
+    |         'symbol' => 'myc',
+    |         'validator' => \App\CryptoValidators\MyCoinValidator::class,
+    |         'config' => [
+    |             'addressTypes' => ['prod' => ['1a'], 'testnet' => ['2b']],
+    |         ]
+    |     ],
+    | ],
+    |
+    | Note: Your validator class must implement:
+    | Multicoin\AddressValidator\Contracts\ValidatorInterface
+    |
+    | You can extend existing validators or create your own from scratch.
+    | See the package documentation for more details on creating custom validators.
+    |
+    */
+    'custom_currencies' => [
+        // Add your custom currency definitions here
+    ],
 ];
